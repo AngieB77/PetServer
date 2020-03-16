@@ -3,7 +3,7 @@ require("dotenv").config();
 const express = require("express");
 const app = express();
 const sequelize = require("./db");
-const sign = require("./controllers/signincontroller");
+const user = require("./controllers/signincontroller");
 const pet = require("./controllers/petcontroller");
 
 sequelize.sync();
@@ -13,10 +13,13 @@ sequelize.sync();
 //   res.send("This is api new");
 // });
 app.use(express.json());
+app.use(require("./middleware/headers"));
+app.use(require("./middleware/validate-session"));
 
-app.use("/signin", sign);
-app.use("rescue/pet", pet);
+app.use("/signin", user);
+app.use("/pet", pet);
+app.use("/pet", pet);
 
 app.listen(process.env.PORT, function(req, res) {
-  console.log(`Listening ${process.env.PORT}`);
+  console.log(`Listening`);
 });

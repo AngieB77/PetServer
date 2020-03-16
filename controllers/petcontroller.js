@@ -3,7 +3,61 @@ const sequelize = require('../db');
 //var User = sequelize.import('../models/authtest');
 // var AuthTestModel = sequelize.import('../models/authtest');
 const Pet = sequelize.import('../models/pet');
+const validateSession = require('../middleware/validate-session');
 
+router.get('/', validateSession, (req,res) => {
+    Pet.findAll({ where: {owner: req.user.email}})
+    .then(result => res.status(200).json(resut))
+    });
+
+router.get('/:id', validateSession, (req, res) => {
+    
+    Pet.findOne({
+        where: {id : req.params.id, owner: req.user.email}
+    }).then(
+        function findOneSuccess(data) {
+            res.json(data);
+        },
+        function findOneError(err) {
+            res.send(500, err.message);
+        }
+    );
+});
+
+router.put('/:id', validateSession, (req,res) => {
+    Pet.update( req.body, {where: {id: req.params.id}})
+    .then(comm => res.status(200).json(pet))
+    .catch(err=> res.json(req.errors))
+});
+
+router.delete('/:id', validateSession, (req, res) => {
+    Pet.destroy({
+        where: { id: req.params.id,
+        owner: req.user.email }
+    }).then(
+        function deleteLogSuccess(data){
+            res.send("removed log");
+        },
+        function deleteLogError(err){
+            res.send(500,err.message)
+        }
+    );
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*
 router.get('/getall', function (req, res) {
     let name = req.user.name;
 
@@ -91,6 +145,6 @@ router.put('/update/:id', function(req, res){
             res.send(500, err.message);
         }
     )
-});
+});*/
 
 module.exports = router;
