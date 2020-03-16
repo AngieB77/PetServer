@@ -1,61 +1,64 @@
-const router = require('express').Router();
-const sequelize = require('../db');
+const router = require("express").Router();
+const sequelize = require("../db");
 //var User = sequelize.import('../models/authtest');
 // var AuthTestModel = sequelize.import('../models/authtest');
-const Pet = sequelize.import('../models/pet');
-const validateSession = require('../middleware/validate-session');
+const Pet = sequelize.import("../models/pet");
+const validateSession = require("../middleware/validate-session");
 
-router.get('/', validateSession, (req,res) => {
-    Pet.findAll({ where: {owner: req.user.email}})
-    .then(result => res.status(200).json(resut))
+router.get("/", (req, res) => {
+  Pet.findAll({ where: { userId: req.user.id } }).then(result =>
+    res.status(200).json(result)
+  );
+});
+
+router.get("/:id", (req, res) => {
+  Pet.findOne({
+    where: { id: req.params.id, userId: req.user.id }
+  })
+    .then(function findOneSuccess(data) {
+      res.json(data);
+    })
+    .catch(function findOneError(err) {
+      res.send(500, err.message);
     });
-
-router.get('/:id', validateSession, (req, res) => {
-    
-    Pet.findOne({
-        where: {id : req.params.id, owner: req.user.email}
-    }).then(
-        function findOneSuccess(data) {
-            res.json(data);
-        },
-        function findOneError(err) {
-            res.send(500, err.message);
-        }
-    );
 });
 
-router.put('/:id', validateSession, (req,res) => {
-    Pet.update( req.body, {where: {id: req.params.id}})
-    .then(comm => res.status(200).json(pet))
-    .catch(err=> res.json(req.errors))
+router.post("/create", (req, res) => {
+  Pet.create({
+    animal: req.body.animal,
+    breed: req.body.breed,
+    size: req.body.size,
+    location: req.body.location,
+    info: req.body.info,
+    owner: req.body.owner,
+    userId: req.user.id
+  })
+    .then(pet => res.status(200).json(pet))
+    .catch(err => res.json(err.message));
 });
 
-router.delete('/:id', validateSession, (req, res) => {
-    Pet.destroy({
-        where: { id: req.params.id,
-        owner: req.user.email }
-    }).then(
-        function deleteLogSuccess(data){
-            res.send("removed log");
-        },
-        function deleteLogError(err){
-            res.send(500,err.message)
-        }
-    );
+router.put("/:id", (req, res) => {
+  Pet.update(req.body, { where: { id: req.params.id, userId: req.user.id } })
+    .then(pet =>
+      res.json({
+        pet: pet,
+        message: "pet updated"
+      })
+    )
+    .catch(err => res.status(500).json({ error: err }));
 });
 
-
-
-
-
-
-
-
-
-
-
-
-
+router.delete("/:id", (req, res) => {
+  Pet.destroy({
+    where: { id: req.params.id, userId: req.user.id }
+  })
+    .then(function deleteLogSuccess(data) {
+      res.send("removed log");
+    })
+    .catch(function deleteLogError(err) {
+      res.send(500, err.message);
+    });
+});
 
 /*
 router.get('/getall', function (req, res) {

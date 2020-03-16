@@ -13,12 +13,14 @@ sequelize.sync();
 //   res.send("This is api new");
 // });
 app.use(express.json());
+
+app.use("/signin", user);
+
 app.use(require("./middleware/headers"));
 app.use(require("./middleware/validate-session"));
 
-app.use("/signin", user);
 app.use("/pet", pet);
-app.use("/pet", pet);
+// app.use("/pet", pet);
 
 app.listen(process.env.PORT, function(req, res) {
   console.log(`Listening`);

@@ -36,13 +36,9 @@ router.post("/signup", (req, res) => {
     .then(console.log("TEST!!!!!!"))
     .then(
       (createSuccess = user => {
-        let token = jwt.sign(
-          { id: user.id, email: user.email },
-          process.env.JWT_SECRET,
-          {
-            expiresIn: 60 * 60 * 24
-          }
-        );
+        let token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+          expiresIn: 60 * 60 * 24
+        });
         res.json({
           user: user,
           message: "user created",
@@ -64,30 +60,22 @@ router.post("/login", (req, res) => {
   }).then(
     user => {
       if (user) {
-        bcrypt.compare(
-          req.body.user.password,
-          user.password,
-          (err, matches) => {
-            if (matches) {
-              let token = jwt.sign(
-                { id: user.id, emai: user.email },
-                process.env.JWT_SECRET,
-                {
-                  expiresIN: 60 * 60 * 24
-                }
-              );
-              res.json({
-                user: user,
-                message: "successfully authenticated",
-                sessionToken: token
-              });
-            } else {
-              res
-                .status(502)
-                .send({ error: "bad gateway passwords don't match" });
-            }
+        bcrypt.compare(req.body.password, user.password, (err, matches) => {
+          if (matches) {
+            let token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+              expiresIn: 60 * 60 * 24
+            });
+            res.json({
+              user: user,
+              message: "successfully authenticated",
+              sessionToken: token
+            });
+          } else {
+            res
+              .status(502)
+              .send({ error: "bad gateway passwords don't match" });
           }
-        );
+        });
       } else {
         res.status(500).send({ error: "failed to authenticate" });
       }
